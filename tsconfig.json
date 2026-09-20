@@ -3,7 +3,9 @@
   "include": [
     ".astro/types.d.ts",
     "src/**/*",
+    "ciudades/**/*",
     "pipeline/**/*",
+    "scripts/**/*",
     "tests/**/*",
     "astro.config.ts",
     "vitest.config.ts",

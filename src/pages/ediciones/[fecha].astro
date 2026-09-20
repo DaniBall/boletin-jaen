@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import Base from '../../layouts/Base.astro';
 import AccionesEdicion from '../../components/AccionesEdicion.astro';
-import { brand } from '../../../pipeline/config.ts';
+import { ciudadActual } from '../../../ciudades/index.ts';
 import { longDate } from '../../../pipeline/lib/fechas.ts';
 import { editionUrl } from '../../../pipeline/lib/edicion.ts';
 import { renderWhatsapp } from '../../../pipeline/render/whatsapp.ts';
@@ -19,12 +19,15 @@ export const getStaticPaths = (async () => {
 const { edicion } = Astro.props;
 const { Content } = await render(edicion);
 
+const ciudad = ciudadActual();
 const fecha = edicion.data.fecha;
-const textoWhatsapp = renderWhatsapp(edicion.body ?? '', { editionUrl: editionUrl(fecha) });
-const titulo = `Edición nº ${edicion.data.numero} · ${longDate(fecha)} · ${brand.name}`;
+const textoWhatsapp = renderWhatsapp(edicion.body ?? '', {
+  editionUrl: editionUrl(ciudad, fecha),
+});
+const titulo = `Edición nº ${edicion.data.numero} · ${longDate(fecha)} · ${ciudad.brand.name}`;
 ---
 
-<Base title={titulo} description={`${brand.name}: lo útil de Jaén el ${longDate(fecha)}.`}>
+<Base title={titulo} description={`${ciudad.brand.name}: lo útil del ${longDate(fecha)}.`}>
   <h1>{longDate(fecha)}</h1>
   <p class="meta">
     Edición nº {edicion.data.numero}

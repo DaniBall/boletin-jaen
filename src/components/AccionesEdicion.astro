@@ -1,5 +1,5 @@
 ---
-import { brand } from '../../pipeline/config.ts';
+import { ciudadActual } from '../../ciudades/index.ts';
 
 interface Props {
   /** Texto ya renderizado para WhatsApp. */
@@ -7,12 +7,13 @@ interface Props {
 }
 
 const { texto } = Astro.props;
+const ciudad = ciudadActual();
 const compartir = `https://wa.me/?text=${encodeURIComponent(texto)}`;
 ---
 
 <div class="botonera">
-  {brand.whatsappChannelUrl && (
-    <a class="boton" href={brand.whatsappChannelUrl} rel="noopener">
+  {ciudad.brand.channelUrl && (
+    <a class="boton" href={ciudad.brand.channelUrl} rel="noopener">
       Seguir el canal
     </a>
   )}

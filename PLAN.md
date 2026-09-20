@@ -159,10 +159,10 @@ type Borrador = {
 - [ ] (Editor) Pedir la clave gratuita de AEMET OpenData y guardar `ANTHROPIC_API_KEY` y `AEMET_API_KEY` como secrets.
 - [x] Astro con TypeScript estricto, ESLint y Prettier, Vitest, `.env.example` y `.gitignore` (incluida la caché del pipeline). Node 22 en `.nvmrc`.
 - [x] Hook SessionStart en `.claude/settings.json` que ejecute `npm ci` solo cuando `CLAUDE_CODE_REMOTE` sea `true`.
-- [ ] Estructura multiciudad: `ciudades/index.ts`, `ciudades/jaen/`, `ciudades/leon/` y `ciudades/vitoria/` con su `config.ts` provisional, y la regla de lint que impide importar `ciudades/` desde `pipeline/`.
-- [ ] Una edición de ejemplo escrita a mano por ciudad y su página en la web, con build por ciudad (`CIUDAD`).
+- [x] Estructura multiciudad: `ciudades/index.ts`, `ciudades/jaen/`, `ciudades/leon/` y `ciudades/vitoria/` con su `config.ts` provisional, y la regla de lint que impide importar `ciudades/` desde `pipeline/`.
+- [x] Una edición de ejemplo escrita a mano por ciudad y su página en la web, con build por ciudad (`CIUDAD`).
 - [x] Render de Markdown a WhatsApp, con tests.
-- [ ] Workflow `ci.yml`: typecheck, lint, test y build de cada ciudad.
+- [x] Workflow `ci.yml`: typecheck, lint, test y build de cada ciudad.
 - [ ] (Editor, guiado por Claude Code) Cuenta gratuita de Cloudflare y un proyecto por ciudad conectado al repo, con su comando de build y un dominio provisional.
 
 ### Fase 1: MVP de Jaén (salir en su Canal)

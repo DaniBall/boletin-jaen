@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   comprobar:
-    name: Typecheck, lint, tests y build
+    name: Typecheck, lint y tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -35,5 +35,25 @@ jobs:
       - name: Tests
         run: npm test
 
+  construir:
+    name: Build de ${{ matrix.ciudad }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Al añadir una ciudad, añádela aquí.
+        ciudad: [jaen, leon, vitoria]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
       - name: Build
         run: npm run build
+        env:
+          CIUDAD: ${{ matrix.ciudad }}

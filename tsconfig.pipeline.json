@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["pipeline/**/*", "tests/**/*", "vitest.config.ts"],
+  "include": ["ciudades/**/*", "pipeline/**/*", "scripts/**/*", "tests/**/*", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", ".cache"],
   "compilerOptions": {
     "target": "ES2023",

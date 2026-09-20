@@ -1,14 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { edicionesPublicadas } from '../../lib/ediciones.ts';
-import { brand } from '../../../pipeline/config.ts';
+import { ciudadActual } from '../../../ciudades/index.ts';
 import { longDate } from '../../../pipeline/lib/fechas.ts';
 
+const ciudad = ciudadActual();
 const ediciones = await edicionesPublicadas();
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<Base title={`Ediciones · ${brand.name}`} description={`Archivo de ${brand.longName}.`}>
+<Base
+  title={`Ediciones · ${ciudad.brand.name}`}
+  description={`Archivo de ediciones de ${ciudad.brand.name}.`}
+>
   <h1>Ediciones</h1>
   <p class="meta">Todas las ediciones publicadas, de la más reciente a la más antigua.</p>
 
@@ -18,7 +21,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <ul class="lista-ediciones">
       {ediciones.map((edicion) => (
         <li>
-          <a href={`${base}/ediciones/${edicion.data.fecha}/`}>{longDate(edicion.data.fecha)}</a>
+          <a href={`/ediciones/${edicion.data.fecha}/`}>{longDate(edicion.data.fecha)}</a>
           <span>Edición nº {edicion.data.numero}</span>
         </li>
       ))}

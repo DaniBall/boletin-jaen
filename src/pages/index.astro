@@ -3,24 +3,25 @@ import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import AccionesEdicion from '../components/AccionesEdicion.astro';
 import { ultimaEdicion } from '../lib/ediciones.ts';
-import { brand } from '../../pipeline/config.ts';
+import { ciudadActual } from '../../ciudades/index.ts';
+import { tagline } from '../../pipeline/config.ts';
 import { longDate } from '../../pipeline/lib/fechas.ts';
 import { editionUrl } from '../../pipeline/lib/edicion.ts';
 import { renderWhatsapp } from '../../pipeline/render/whatsapp.ts';
 
+const ciudad = ciudadActual();
 const edicion = await ultimaEdicion();
 const contenido = edicion ? await render(edicion) : undefined;
 const texto = edicion
-  ? renderWhatsapp(edicion.body ?? '', { editionUrl: editionUrl(edicion.data.fecha) })
+  ? renderWhatsapp(edicion.body ?? '', { editionUrl: editionUrl(ciudad, edicion.data.fecha) })
   : '';
-const archivo = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/ediciones/`;
 ---
 
-<Base title={`${brand.longName} · ${brand.tagline}`}>
-  <h1>{brand.tagline}</h1>
+<Base title={`${ciudad.brand.name} · ${tagline(ciudad.name)}`}>
+  <h1>{tagline(ciudad.name)}</h1>
   <p class="meta">
-    De lunes a viernes, lo que te cambia el día en Jaén capital: el tiempo, los planes, la
-    movilidad, las noticias que te afectan, las farmacias de guardia, la gasolina y el aceite.
+    De lunes a viernes, lo que te cambia el día en {ciudad.name}: el tiempo, los planes, la
+    movilidad, las noticias que te afectan, las farmacias de guardia y la gasolina.
   </p>
 
   {edicion && contenido ? (
@@ -31,7 +32,7 @@ const archivo = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/ediciones/`;
         <contenido.Content />
       </article>
       <p>
-        <a href={archivo}>Ver todas las ediciones</a>
+        <a href="/ediciones/">Ver todas las ediciones</a>
       </p>
     </>
   ) : (

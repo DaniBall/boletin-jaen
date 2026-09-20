@@ -1,15 +1,16 @@
 ---
 import '../styles/global.css';
-import { brand } from '../../pipeline/config.ts';
+import { ciudadActual } from '../../ciudades/index.ts';
+import { tagline } from '../../pipeline/config.ts';
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = brand.tagline } = Astro.props;
-const inicio = import.meta.env.BASE_URL;
-const archivo = `${inicio.replace(/\/$/, '')}/ediciones/`;
+const ciudad = ciudadActual();
+const promesa = tagline(ciudad.name);
+const { title, description = promesa } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,10 +30,10 @@ const archivo = `${inicio.replace(/\/$/, '')}/ediciones/`;
     <header class="cabecera">
       <div class="contenedor">
         <nav>
-          <a class="cabecera__marca" href={inicio}>
-            {brand.name}
+          <a class="cabecera__marca" href="/">
+            {ciudad.brand.name}
           </a>
-          <a href={archivo}>Ediciones anteriores</a>
+          <a href="/ediciones/">Ediciones anteriores</a>
         </nav>
       </div>
     </header>
@@ -44,7 +45,7 @@ const archivo = `${inicio.replace(/\/$/, '')}/ediciones/`;
     <footer class="pie">
       <div class="contenedor">
         <p>
-          {brand.longName}. {brand.tagline}
+          {ciudad.brand.name}. {promesa}
         </p>
         <p>Esta web no usa cookies ni rastrea a quien la lee.</p>
       </div>
