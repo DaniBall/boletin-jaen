@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.cache/
+package-lock.json
+
+# Documentos vivos que se escriben a mano: Prettier remaqueta las tablas y
+# ensucia el diff sin aportar nada.
+CLAUDE.md
+PLAN.md
+
+# Las ediciones son la fuente de verdad: se quedan tal y como se escriben.
+content/ediciones/
+tests/fixtures/

@@ -1,0 +1,21 @@
+# dependencias
+node_modules/
+
+# build
+dist/
+.astro/
+
+# caché del pipeline (contenido bruto de terceros: nunca se commitea)
+.cache/
+
+# entorno
+.env
+.env.local
+.env.*.local
+
+# sistema y editores
+.DS_Store
+*.log
+npm-debug.log*
+.vscode/
+.idea/

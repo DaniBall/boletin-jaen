@@ -1,0 +1,59 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import AccionesEdicion from '../../components/AccionesEdicion.astro';
+import { brand } from '../../../pipeline/config.ts';
+import { longDate } from '../../../pipeline/lib/fechas.ts';
+import { editionUrl } from '../../../pipeline/lib/edicion.ts';
+import { renderWhatsapp } from '../../../pipeline/render/whatsapp.ts';
+
+export const getStaticPaths = (async () => {
+  const ediciones = await getCollection('ediciones');
+  return ediciones.map((edicion) => ({
+    params: { fecha: edicion.data.fecha },
+    props: { edicion },
+  }));
+}) satisfies GetStaticPaths;
+
+const { edicion } = Astro.props;
+const { Content } = await render(edicion);
+
+const fecha = edicion.data.fecha;
+const textoWhatsapp = renderWhatsapp(edicion.body ?? '', { editionUrl: editionUrl(fecha) });
+const titulo = `Edición nº ${edicion.data.numero} · ${longDate(fecha)} · ${brand.name}`;
+---
+
+<Base title={titulo} description={`${brand.name}: lo útil de Jaén el ${longDate(fecha)}.`}>
+  <h1>{longDate(fecha)}</h1>
+  <p class="meta">
+    Edición nº {edicion.data.numero}
+    {edicion.data.estado === 'borrador' && ' · borrador sin publicar'}
+  </p>
+
+  <AccionesEdicion texto={textoWhatsapp} />
+
+  <article class="edicion">
+    <Content />
+  </article>
+
+  {edicion.data.fuentes.length > 0 && (
+    <>
+      <h2>Fuentes</h2>
+      <ul>
+        {edicion.data.fuentes.map((fuente) => (
+          <li>{fuente.url ? <a href={fuente.url}>{fuente.nombre}</a> : fuente.nombre}</li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {edicion.data.avisos.length > 0 && (
+    <>
+      <h2>Avisos</h2>
+      {edicion.data.avisos.map((aviso) => (
+        <p class="aviso">{aviso}</p>
+      ))}
+    </>
+  )}
+</Base>

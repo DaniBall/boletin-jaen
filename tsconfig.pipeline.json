@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["pipeline/**/*", "tests/**/*", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", ".cache"],
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  }
+}
