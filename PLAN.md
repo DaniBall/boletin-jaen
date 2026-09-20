@@ -155,7 +155,7 @@ type Borrador = {
 
 ### Fase 0: cimientos multiciudad
 
-- [ ] (Editor) Crear el repo con un nombre neutro, por ejemplo `boletines-locales`, y permitir que Actions cree Pull Requests (Settings → Actions → General → Workflow permissions).
+- [x] (Editor) Crear el repo con un nombre neutro, por ejemplo `boletines-locales`, y permitir que Actions cree Pull Requests (Settings → Actions → General → Workflow permissions).
 - [ ] (Editor) Pedir la clave gratuita de AEMET OpenData y guardar `ANTHROPIC_API_KEY` y `AEMET_API_KEY` como secrets.
 - [x] Astro con TypeScript estricto, ESLint y Prettier, Vitest, `.env.example` y `.gitignore` (incluida la caché del pipeline). Node 22 en `.nvmrc`.
 - [x] Hook SessionStart en `.claude/settings.json` que ejecute `npm ci` solo cuando `CLAUDE_CODE_REMOTE` sea `true`.
