@@ -1,0 +1,56 @@
+---
+import { brand } from '../../pipeline/config.ts';
+
+interface Props {
+  /** Texto ya renderizado para WhatsApp. */
+  texto: string;
+}
+
+const { texto } = Astro.props;
+const compartir = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+---
+
+<div class="botonera">
+  {brand.whatsappChannelUrl && (
+    <a class="boton" href={brand.whatsappChannelUrl} rel="noopener">
+      Seguir el canal
+    </a>
+  )}
+  <button class="boton boton--secundario" type="button" data-copiar>
+    Copiar para WhatsApp
+  </button>
+  <a class="boton boton--secundario" href={compartir} rel="noopener">
+    Compartir
+  </a>
+</div>
+
+<p class="visualmente-oculto" role="status" data-estado></p>
+<textarea class="visualmente-oculto" readonly aria-hidden="true" data-texto>{texto}</textarea>
+
+<script>
+  const boton = document.querySelector<HTMLButtonElement>('[data-copiar]');
+  const campo = document.querySelector<HTMLTextAreaElement>('[data-texto]');
+  const estado = document.querySelector<HTMLParagraphElement>('[data-estado]');
+
+  boton?.addEventListener('click', () => {
+    const texto = campo?.value ?? '';
+    const avisar = (mensaje: string) => {
+      const original = 'Copiar para WhatsApp';
+      boton.textContent = mensaje;
+      if (estado) estado.textContent = mensaje;
+      window.setTimeout(() => {
+        boton.textContent = original;
+      }, 2000);
+    };
+
+    navigator.clipboard.writeText(texto).then(
+      () => avisar('¡Copiado!'),
+      () => {
+        // Sin permiso para el portapapeles: se selecciona para copiar a mano.
+        campo?.classList.remove('visualmente-oculto');
+        campo?.select();
+        avisar('Copia el texto seleccionado');
+      },
+    );
+  });
+</script>

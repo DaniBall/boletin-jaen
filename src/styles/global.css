@@ -1,0 +1,236 @@
+/*
+ * Tokens del boletín: el olivar y el aceite nuevo sobre blanco.
+ * Un solo elemento audaz (el bloque de la edición) y el resto, sobrio.
+ */
+:root {
+  --tinta: #1c2418;
+  --olivar: #2f4a2c;
+  --olivar-claro: #4a6b44;
+  --aceite: #c9a227;
+  --papel: #ffffff;
+  --papel-suave: #f6f7f3;
+  --gris: #555c50;
+  --borde: #dde2d8;
+
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fuente-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --ancho: 40rem;
+  --radio: 0.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+a {
+  color: var(--olivar);
+  text-decoration-color: var(--aceite);
+  text-decoration-thickness: 0.125em;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-color: var(--olivar);
+}
+
+:focus-visible {
+  outline: 3px solid var(--olivar);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  text-wrap: balance;
+  color: var(--olivar);
+}
+
+h1 {
+  font-size: 1.875rem;
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 2rem 0 0.5rem;
+}
+
+/* Cabecera y pie */
+.cabecera {
+  border-bottom: 1px solid var(--borde);
+  padding-block: 1rem;
+}
+
+.cabecera__marca {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--olivar);
+  text-decoration: none;
+}
+
+.cabecera nav {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.pie {
+  margin-top: 3rem;
+  border-top: 1px solid var(--borde);
+  padding-block: 1.5rem 2.5rem;
+  color: var(--gris);
+  font-size: 0.9375rem;
+}
+
+/* Botones */
+.boton {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--olivar);
+  border-radius: var(--radio);
+  background: var(--olivar);
+  color: var(--papel);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: var(--olivar-claro);
+  border-color: var(--olivar-claro);
+}
+
+.boton--secundario {
+  background: transparent;
+  color: var(--olivar);
+}
+
+.boton--secundario:hover {
+  background: var(--papel-suave);
+  border-color: var(--olivar);
+  color: var(--olivar);
+}
+
+.botonera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1.25rem;
+}
+
+/* El bloque de la edición: tal y como llega al WhatsApp */
+.edicion {
+  border: 1px solid var(--borde);
+  border-top: 4px solid var(--aceite);
+  border-radius: var(--radio);
+  background: var(--papel-suave);
+  padding: 1.25rem;
+}
+
+.edicion :first-child {
+  margin-top: 0;
+}
+
+.edicion :last-child {
+  margin-bottom: 0;
+}
+
+.edicion ul {
+  padding-left: 1.25rem;
+}
+
+.edicion li + li {
+  margin-top: 0.5rem;
+}
+
+.edicion hr {
+  border: 0;
+  border-top: 1px solid var(--borde);
+  margin-block: 1.5rem;
+}
+
+.meta {
+  color: var(--gris);
+  font-size: 0.9375rem;
+  margin: 0 0 1.5rem;
+}
+
+.aviso {
+  border-left: 4px solid var(--aceite);
+  background: var(--papel-suave);
+  padding: 0.75rem 1rem;
+  margin-block: 1rem;
+  font-size: 0.9375rem;
+}
+
+/* Archivo */
+.lista-ediciones {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-ediciones li {
+  border-bottom: 1px solid var(--borde);
+  padding-block: 0.875rem;
+}
+
+.lista-ediciones a {
+  font-weight: 600;
+}
+
+.lista-ediciones span {
+  display: block;
+  color: var(--gris);
+  font-size: 0.9375rem;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

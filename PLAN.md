@@ -168,11 +168,11 @@ type Borrador = {
 
 - [ ] (Editor) Crear el repo. En Settings → Actions, permitir que Actions cree Pull Requests. En Settings → Pages, elegir «GitHub Actions» como origen.
 - [ ] (Editor) Pedir la clave gratuita de AEMET OpenData y guardar `ANTHROPIC_API_KEY` y `AEMET_API_KEY` como secrets.
-- [ ] Astro con TypeScript estricto, ESLint y Prettier, Vitest, `.env.example` y `.gitignore` (incluida la caché del pipeline).
-- [ ] `pipeline/config.ts`: marca provisional, URL del Canal, alcance, zona horaria, secciones, festivos y flags.
-- [ ] Una edición de ejemplo escrita a mano en `content/ediciones/` y su página en la web.
-- [ ] Render de Markdown a WhatsApp, con tests.
-- [ ] Workflows `ci.yml` (typecheck, lint, test y build) y `deploy.yml` (Pages en cada push a `main`).
+- [x] Astro con TypeScript estricto, ESLint y Prettier, Vitest, `.env.example` y `.gitignore` (incluida la caché del pipeline).
+- [x] `pipeline/config.ts`: marca provisional, URL del Canal, alcance, zona horaria, secciones, festivos y flags.
+- [x] Una edición de ejemplo escrita a mano en `content/ediciones/` y su página en la web.
+- [x] Render de Markdown a WhatsApp, con tests.
+- [x] Workflows `ci.yml` (typecheck, lint, test y build) y `deploy.yml` (Pages en cada push a `main`).
 
 ### Fase 1: MVP, salir en el Canal
 
