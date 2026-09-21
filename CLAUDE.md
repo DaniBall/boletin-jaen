@@ -1,26 +1,29 @@
-# CLAUDE.md — Boletín diario de Jaén (nombre provisional)
+# CLAUDE.md — Boletines diarios locales (Jaén, León y Vitoria-Gasteiz)
 
-El plan detallado por fases está en `PLAN.md`. Léelo antes de empezar cada fase y marca las casillas al terminar. Si el repo está vacío, empieza por la fase 0.
+Nombres provisionales. El plan por fases y las fichas de cada ciudad están en `PLAN.md`: léelo antes de empezar cada fase y marca las casillas al terminar. Si el repo está vacío, empieza por la fase 0.
 
 ## Qué es
 
-Boletín hiperlocal de servicio para quien vive en Jaén capital. Cada mañana laborable, lo útil del día (tiempo, planes, movilidad, noticias que te afectan, farmacias, gasolina y aceite) en un mensaje corto de WhatsApp, más una web con el archivo de ediciones.
+Un motor para boletines hiperlocales de servicio, con una edición por ciudad (de momento, Jaén, León y Vitoria-Gasteiz). Cada mañana laborable, lo útil del día (tiempo, planes, movilidad, noticias que te afectan, farmacias, gasolina y una sección propia de cada ciudad) en un mensaje corto de WhatsApp, más una web por ciudad con el archivo de ediciones.
 
 Se inspira en el modelo Pamplonews/Logronews, pero no copia su nombre ni el patrón «-news», su eslogan («sacarle todo el jugo»), su color (#EC5F60) ni sus ilustraciones.
 
 ## Decisiones tomadas
 
-- **Fase 1: Canal de WhatsApp (gratis).** La API oficial de Meta no publica en canales, así que el editor pega el texto a mano con el botón «Copiar para WhatsApp». La publicación automática con WAHA es opcional (fase 1b).
+- **Un motor, varias ciudades.** Un solo repo. Lo específico de cada ciudad vive en `ciudades/<id>/` y el motor no conoce ninguna ciudad. Añadir una ciudad es crear su carpeta, sin tocar el motor.
+- **Lanzamiento escalonado.** Primero Jaén. Las demás entran de una en una, cuando la anterior lleve dos semanas estable (el orden está en el PLAN).
+- **Fase 1: un Canal de WhatsApp por ciudad (gratis).** La API oficial de Meta no publica en canales, así que el editor pega el texto a mano con el botón «Copiar para WhatsApp». La publicación automática con WAHA es opcional (fase 1b).
 - **Fase 2: API oficial (WhatsApp Cloud API)** con suscriptores, cuando haya tracción y un patrocinio que pague los envíos.
-- **Sin servidor en fase 1.** GitHub Actions genera el borrador y abre un Pull Request, el editor lo revisa desde el móvil, el merge equivale a aprobarlo y GitHub Pages publica la web.
+- **Sin servidor en fase 1.** GitHub Actions genera un borrador por ciudad y abre un Pull Request por cada una. El editor los revisa desde el móvil, el merge equivale a aprobar y la web de esa ciudad se publica sola.
 - **Nada se publica sin revisión humana.**
-- **Una edición es un Markdown** en `content/ediciones/AAAA-MM-DD.md`. Es la fuente de verdad, se puede editar a mano y se renderiza a HTML (web) y a texto de WhatsApp.
+- **Una edición es un Markdown** en `content/<id>/ediciones/AAAA-MM-DD.md`. Es la fuente de verdad, se puede editar a mano y se renderiza a HTML (web) y a texto de WhatsApp.
+- **Webs en Cloudflare:** un proyecto por ciudad conectado a este repo, cada uno con su dominio. GitHub Pages no sirve porque solo admite una web por repo.
 
 ## Stack
 
-- TypeScript estricto, Node LTS y npm, con un solo `package.json`.
-- Web: Astro estático en GitHub Pages con dominio propio. Sin cookies y con analítica sin cookies.
-- Pipeline: scripts TS en `pipeline/`, ejecutados por GitHub Actions.
+- TypeScript estricto, Node 22 (fijado en `.nvmrc`) y npm, con un solo `package.json`.
+- Web: Astro estático. Se construye una vez por ciudad (`CIUDAD=jaen npm run build`) y cada build se despliega en su proyecto de Cloudflare (Pages o Workers con assets estáticos, lo que recomiende su documentación actual). Sin cookies y con analítica sin cookies.
+- Pipeline: scripts TS ejecutados por GitHub Actions, con una matriz por ciudad.
 - IA: SDK oficial `@anthropic-ai/sdk` con el modelo `claude-sonnet-5` (configurable con `CLAUDE_MODEL`) y salida con structured outputs (`output_config.format` + JSON Schema).
 - Zod para esquemas, Vitest para tests, cheerio para HTML, fast-xml-parser para RSS/XML y remark (AST) para transformar Markdown.
 - Fechas siempre en `Europe/Madrid`, con una librería que maneje zonas horarias. Nada de lógica de días con `new Date()` a pelo.
@@ -31,42 +34,67 @@ Se inspira en el modelo Pamplonews/Logronews, pero no copia su nombre ni el patr
 .
 ├── CLAUDE.md
 ├── PLAN.md
-├── content/ediciones/   # AAAA-MM-DD.md, una por edición (fuente de verdad)
-├── prompts/             # guía de estilo y plantilla del prompt de redacción
-├── pipeline/
-│   ├── config.ts        # marca, URL del canal, alcance, zona horaria, secciones, festivos, flags
-│   ├── collectors/      # una fuente por archivo, misma interfaz
-│   ├── steps/           # collect, select, draft, validate, render
-│   ├── render/          # Markdown → texto de WhatsApp
-│   ├── lib/             # http (timeout, caché, robots.txt), fechas, deduplicado
-│   └── cli.ts
-├── src/                 # web Astro (páginas, layouts, componentes)
-├── public/              # CNAME, favicon, imágenes
-├── tests/               # incluye fixtures/ con HTML y RSS guardados
-└── .github/workflows/   # ci.yml, deploy.yml, borrador.yml
+├── ciudades/
+│   ├── index.ts           # registro: la única puerta de entrada a las ciudades
+│   ├── jaen/
+│   │   ├── config.ts      # marca, dominio, URL del canal, alcance, códigos, secciones, festivos
+│   │   ├── collectors/    # fuentes propias (Ayuntamiento, agenda local, aceite…)
+│   │   ├── prompts/       # toque local de la guía de estilo
+│   │   └── public/        # logo, favicon e imágenes de la ciudad
+│   ├── leon/              # misma estructura
+│   └── vitoria/           # misma estructura
+├── content/
+│   ├── jaen/ediciones/    # AAAA-MM-DD.md, una por edición (fuente de verdad)
+│   ├── leon/ediciones/
+│   └── vitoria/ediciones/
+├── prompts/               # guía de estilo común
+├── pipeline/              # motor común: nunca importa de ciudades/
+│   ├── collectors/        # genéricos y parametrizables: aemet, carburantes, rss, dgt
+│   ├── steps/             # collect, select, draft, validate, render
+│   ├── render/            # Markdown → texto de WhatsApp
+│   └── lib/               # http (timeout, caché, robots.txt), fechas, deduplicado
+├── scripts/               # CLI (edicion, fuentes, whatsapp): une el motor y las ciudades
+├── src/                   # web Astro: la ciudad llega por CIUDAD y el registro
+├── tests/                 # incluye fixtures/<id>/ con HTML y RSS guardados
+└── .github/workflows/     # ci.yml, borrador.yml (matriz por ciudad)
 ```
 
 ## Contratos
 
 ```ts
-type SectionId =
-  | 'tiempo' | 'agenda' | 'finde' | 'movilidad'
-  | 'te_afecta' | 'farmacias' | 'carburantes' | 'aceite';
+interface CityConfig {
+  id: string;                     // 'jaen', 'leon', 'vitoria'
+  name: string;                   // 'Jaén'
+  brand: { name: string; domain: string; channelUrl: string }; // provisional hasta decidir
+  scope: string[];                // municipios y zonas que cuentan como «de aquí»
+  aemetMunicipality: string;      // código INE del municipio
+  fuelMunicipalityId?: string;    // IDMunicipio de la API de carburantes
+  sections: SectionDef[];         // orden y secciones activas, incluidas las propias
+  collectors: Collector[];        // genéricos configurados + propios
+  holidays: string[];             // AAAA-MM-DD sin edición
+}
+
+interface SectionDef {
+  id: string;                     // 'tiempo', 'agenda', 'aceite'…
+  title: string;                  // '🫒 El aceite'
+  writer: 'code' | 'ai';
+  season?: { from: string; to: string }; // MM-DD; puede cruzar el cambio de año
+}
 
 interface Collector {
-  id: string;                 // 'aemet', 'ayto-agenda', 'rss-diario-jaen'…
-  section: SectionId;
-  collect(ctx: { date: string }): Promise<Item[]>; // date = AAAA-MM-DD en Europe/Madrid
+  id: string;                     // 'aemet', 'ayto-agenda', 'rss-diario-jaen'…
+  section: string;                // id de una SectionDef de la ciudad
+  collect(ctx: { city: CityConfig; date: string }): Promise<Item[]>; // date = AAAA-MM-DD en Europe/Madrid
 }
 
 interface Item {
-  id: string;                 // estable: hash(fuente + url o título)
-  source: string;             // id del colector
-  section: SectionId;
+  id: string;                     // estable: hash(fuente + url o título)
+  source: string;                 // id del colector
+  section: string;
   title: string;
-  summary?: string;           // texto de la fuente: solo para el prompt, nunca se publica tal cual
+  summary?: string;               // texto de la fuente: solo para el prompt, nunca se publica tal cual
   url?: string;
-  startsAt?: string;          // eventos
+  startsAt?: string;              // eventos
   endsAt?: string;
   place?: string;
   publishedAt?: string;
@@ -77,13 +105,13 @@ interface Item {
 ## Comandos (se crean en las fases 0 y 1)
 
 ```
-npm run dev                                       # web en local
-npm run build                                     # build de Astro
+CIUDAD=jaen npm run dev                                       # web de una ciudad en local
+CIUDAD=jaen npm run build                                     # build de una ciudad
 npm run typecheck && npm test && npm run lint
-npm run edicion -- --fecha 2026-09-21             # pipeline completo → content/ediciones/2026-09-21.md
-npm run edicion -- --fecha 2026-09-21 --sin-ia    # sin llamar a Claude, para desarrollar gratis
-npm run fuentes -- --fecha 2026-09-21             # tabla de salud de las fuentes
-npm run whatsapp -- --fecha 2026-09-21            # imprime el texto listo para pegar
+npm run edicion -- --ciudad jaen --fecha 2026-09-21           # pipeline completo → content/jaen/ediciones/2026-09-21.md
+npm run edicion -- --ciudad leon --fecha 2026-09-21 --sin-ia  # sin llamar a Claude, para desarrollar gratis
+npm run fuentes -- --ciudad leon --fecha 2026-09-21           # tabla de salud de las fuentes
+npm run whatsapp -- --ciudad jaen --fecha 2026-09-21          # imprime el texto listo para pegar
 ```
 
 ## Reglas del pipeline (no negociables)
@@ -94,7 +122,9 @@ npm run whatsapp -- --fecha 2026-09-21            # imprime el texto listo para 
 4. **Palabras propias.** Como mucho dos frases por item, más el enlace a la fuente. Nunca se copian párrafos ni se commitea contenido bruto de terceros (va a una caché ignorada por git).
 5. **Fallos aislados.** Cada fuente tiene timeout y un reintento, y todas se ejecutan con `Promise.allSettled`. Si una falla, su sección se omite y aparece en «Avisos» del PR. Si falla Claude, el PR sale igual con las secciones deterministas y la lista de items para redactar a mano.
 6. **Scraping educado.** RSS o API antes que HTML, respetar `robots.txt`, User-Agent identificable con contacto, una petición por página y ejecución, y caché con ETag/If-Modified-Since.
-7. **No repetir.** `select` lee las ediciones de los últimos 14 días y excluye las URLs ya publicadas.
+7. **No repetir.** `select` lee las ediciones de los últimos 14 días de esa ciudad y excluye las URLs ya publicadas.
+8. **El motor no sabe de ciudades.** `pipeline/` nunca importa de `ciudades/` (una regla de lint lo impide) y no contiene nombres, URLs ni textos de ninguna ciudad. `src/` y `scripts/` solo llegan a las ciudades a través de `ciudades/index.ts`. Si algo solo lo necesita una ciudad, va en su carpeta.
+9. **Un PR, una cosa.** Un PR de edición solo toca `content/<id>/`. Los cambios del motor van en PRs aparte y se prueban con todas las ciudades.
 
 ## Formato de commits (obligatorio)
 
@@ -108,14 +138,16 @@ Ejemplos:
 
 ```
 :tada: :wrench: Crea el proyecto con Astro y TypeScript. Configura Vitest, ESLint y el .env.example.
-:sparkles: :white_check_mark: Añade el colector de carburantes. Añade tests con una respuesta guardada.
-:alien: :adhesive_bandage: Adapta el colector de la agenda municipal al nuevo HTML. Corrige el formato de las horas.
-:speech_balloon: Genera el borrador de la edición nº 12 (2026-09-21).
+:sparkles: :white_check_mark: Añade el colector de la agenda del Ayuntamiento de León. Añade tests con una respuesta guardada.
+:sparkles: :white_check_mark: Añade el colector de tráfico de Open Data Euskadi para Vitoria-Gasteiz. Añade tests con una respuesta guardada.
+:alien: :adhesive_bandage: Adapta el colector de la agenda de Jaén al nuevo HTML. Corrige el formato de las horas.
+:speech_balloon: Genera el borrador de la edición nº 12 de Jaén (2026-09-21).
 ```
 
 | Gitmoji | Uso en este proyecto |
 |---|---|
-| `:sparkles:` | funcionalidad nueva (colector, sección, página) |
+| `:sparkles:` | funcionalidad nueva (colector, sección, página, ciudad) |
+| `:building_construction:` | cambios de arquitectura (motor, estructura multiciudad) |
 | `:bug:` / `:adhesive_bandage:` | bug / arreglo menor |
 | `:alien:` | adaptación a cambios de una fuente o API externa |
 | `:recycle:` / `:art:` | refactor / estructura del código |
@@ -134,9 +166,9 @@ Ejemplos:
 ## Convenciones
 
 - Identificadores de código en inglés; textos de producto, prompts, docs y commits en español de España.
-- Commits pequeños. Antes de cada commit: `npm run typecheck && npm test`.
+- Commits pequeños. Antes de cada commit: `npm run typecheck && npm test`. Si has tocado el motor, también el build de todas las ciudades.
 - Secretos solo en GitHub Secrets o en `.env` local (hay `.env.example`), nunca en el repo.
-- Antes de usar una API o herramienta externa (Astro, GitHub Actions, AEMET, WhatsApp Cloud API, SDK de Anthropic), consulta su documentación actual (Context7 si está disponible). No te fíes de la memoria para versiones, endpoints ni límites.
+- Antes de usar una API o herramienta externa (Astro, GitHub Actions, Cloudflare, AEMET, WhatsApp Cloud API, SDK de Anthropic), consulta su documentación actual (Context7 si está disponible). No te fíes de la memoria para versiones, endpoints ni límites.
 - No añadas dependencias sin una necesidad clara.
 - Estilo de trabajo: conciso y práctico. Al empezar una fase, resume el plan en pocas líneas y arranca. Pregunta solo por lo que está en «Pendiente de decidir».
 
@@ -148,16 +180,20 @@ Ejemplos:
 - AEMET OpenData responde en dos pasos (primero devuelve una URL en `datos`) y los datos pueden venir en ISO-8859-15: decodifica bien los acentos. En la sección del tiempo, cita «Fuente: AEMET».
 - WhatsApp usa `*negrita*`, `_cursiva_` y `~tachado~`: ojo con `*` y `_` dentro de URLs y nombres propios.
 - La fecha de la edición se calcula en `Europe/Madrid`, con el cambio de hora incluido.
+- En Euskadi el tráfico interurbano lo gestiona el Gobierno Vasco, no la DGT: Vitoria-Gasteiz usa su propio colector de movilidad (Open Data Euskadi) en lugar del genérico.
 
 ## Secretos
 
-- Fase 1: `ANTHROPIC_API_KEY` y `AEMET_API_KEY`.
-- Fase 2: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET` y `WHATSAPP_VERIFY_TOKEN`.
+- Fase 1 (GitHub Secrets): `ANTHROPIC_API_KEY` y `AEMET_API_KEY`, compartidos por todas las ciudades. Cloudflare se conecta al repo desde su panel y no necesita secrets en GitHub.
+- Fase 2: `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` y un `WHATSAPP_PHONE_NUMBER_ID_<CIUDAD>` por ciudad.
 
 ## Pendiente de decidir (pregunta antes de asumir)
 
-- Nombre y dominio (candidatos: «El Lagarto», «Pipirrana»). Hasta entonces, toda la marca sale de `pipeline/config.ts` y no hay nada hardcodeado.
-- Repo público o privado.
+- Nombre y dominio de cada ciudad (Jaén: candidatos «El Lagarto» y «Pipirrana»; León y Vitoria-Gasteiz: por decidir). Hasta entonces, la marca sale de `ciudades/<id>/config.ts` y no hay nada hardcodeado.
+- Si habrá una marca común para la red, útil para vender patrocinios conjuntos.
+- Repo público o privado (con Cloudflare ya no hace falta que sea público).
 - Horario: modo «mañana» (borrador hacia las 06:15 y publicación hacia las 07:30) o modo «víspera» (borrador por la noche).
-- Permisos de las fuentes privadas (EnJaen.es, Poolred/Infaoliva).
+- Permisos de las fuentes privadas (ver las fichas del PLAN).
 - WAHA sí o no (fase 1b).
+- Orden y fechas de entrada de León y Vitoria-Gasteiz (Vitoria es la más expuesta a la competencia).
+- En Vitoria-Gasteiz, cuánto euskera usar (hay una propuesta en su ficha).

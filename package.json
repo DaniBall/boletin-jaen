@@ -1,5 +1,5 @@
 {
-  "name": "boletin-jaen",
+  "name": "boletines-locales",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,14 +10,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "typecheck": "astro check && tsc --noEmit -p tsconfig.pipeline.json",
+    "build:todas": "for c in jaen leon vitoria; do CIUDAD=$c astro build || exit 1; done",
+    "typecheck": "CIUDAD=jaen astro check && tsc --noEmit -p tsconfig.pipeline.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "edicion": "tsx pipeline/cli.ts edicion",
-    "fuentes": "tsx pipeline/cli.ts fuentes",
-    "whatsapp": "tsx pipeline/cli.ts whatsapp"
+    "edicion": "tsx scripts/cli.ts edicion",
+    "fuentes": "tsx scripts/cli.ts fuentes",
+    "whatsapp": "tsx scripts/cli.ts whatsapp"
   },
   "dependencies": {
     "astro": "^7.3.3",

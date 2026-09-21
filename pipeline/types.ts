@@ -1,13 +1,60 @@
-import type { SectionId } from './config.ts';
+/**
+ * Contratos del motor. Aquí no hay ninguna ciudad: el motor solo sabe que
+ * recibe una `CityConfig` y actúa según lo que diga.
+ */
 
-export type { SectionId };
+export interface SectionDef {
+  /** 'tiempo', 'agenda', 'aceite'… Único dentro de la ciudad. */
+  id: string;
+  /** Tal y como sale en la edición, con su emoji: '🫒 El aceite'. */
+  title: string;
+  /** Quién la escribe: una plantilla determinista o Claude. */
+  writer: 'code' | 'ai';
+  /** Sección de temporada. MM-DD; puede cruzar el cambio de año. */
+  season?: { from: string; to: string };
+}
+
+export interface CityConfig {
+  /** 'jaen', 'leon', 'vitoria'. Es también el nombre de su carpeta. */
+  id: string;
+  /** 'Jaén', el nombre que se lee. */
+  name: string;
+  /** Provisional mientras el nombre y el dominio estén sin decidir. */
+  brand: { name: string; domain: string; channelUrl: string };
+  /** Municipios y zonas que cuentan como «de aquí». */
+  scope: string[];
+  /** Código INE del municipio, para AEMET. */
+  aemetMunicipality: string;
+  /** IDMunicipio de la API de carburantes del Ministerio. */
+  fuelMunicipalityId?: string;
+  /** Orden y secciones activas, incluidas las propias de la ciudad. */
+  sections: SectionDef[];
+  /** Genéricos ya configurados más los propios. */
+  collectors: Collector[];
+  /** AAAA-MM-DD sin edición. */
+  holidays: string[];
+}
+
+export interface CollectContext {
+  city: CityConfig;
+  /** AAAA-MM-DD en Europe/Madrid. */
+  date: string;
+}
+
+export interface Collector {
+  /** 'aemet', 'ayto-agenda', 'rss-diario-jaen'… */
+  id: string;
+  /** Id de una SectionDef de la ciudad. */
+  section: string;
+  collect(ctx: CollectContext): Promise<Item[]>;
+}
 
 export interface Item {
   /** Estable: hash(fuente + url o título). */
   id: string;
   /** Id del colector que lo trajo. */
   source: string;
-  section: SectionId;
+  section: string;
   title: string;
   /** Texto de la fuente: solo para el prompt, nunca se publica tal cual. */
   summary?: string;
@@ -21,20 +68,9 @@ export interface Item {
   data?: Record<string, unknown>;
 }
 
-export interface CollectContext {
-  /** AAAA-MM-DD en Europe/Madrid. */
-  date: string;
-}
-
-export interface Collector {
-  /** 'aemet', 'ayto-agenda', 'rss-diario-jaen'… */
-  id: string;
-  section: SectionId;
-  collect(ctx: CollectContext): Promise<Item[]>;
-}
-
 /** Frontmatter de una edición. */
 export interface EditionFrontmatter {
+  ciudad: string;
   fecha: string;
   numero: number;
   estado: 'borrador' | 'publicada';

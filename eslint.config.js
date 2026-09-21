@@ -23,9 +23,40 @@ export default defineConfig(
     },
   },
   {
-    files: ['pipeline/**/*.ts', 'tests/**/*.ts'],
+    files: ['pipeline/**/*.ts', 'scripts/**/*.ts', 'ciudades/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+
+  // Regla 8: el motor no sabe de ciudades. `pipeline/` nunca importa de
+  // `ciudades/`; quien las une es `scripts/` o `src/`, y siempre por el
+  // registro `ciudades/index.ts`.
+  {
+    files: ['pipeline/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/ciudades', '**/ciudades/**'],
+              message:
+                'El motor no puede importar de ciudades/ (regla 8 de CLAUDE.md). La ciudad llega por parámetro.',
+            },
+          ],
+        },
+      ],
+      // `no-restricted-imports` solo mira los imports estáticos: un `import()`
+      // dinámico se colaría sin una queja.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportExpression[source.value=/(^|\\/)ciudades(\\/|$)/]',
+          message:
+            'El motor no puede importar de ciudades/ (regla 8 de CLAUDE.md), tampoco con import() dinámico.',
+        },
+      ],
     },
   },
 

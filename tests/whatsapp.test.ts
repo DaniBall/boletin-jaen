@@ -3,6 +3,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { describe, expect, it } from 'vitest';
 import { cleanUrl, renderWhatsapp } from '../pipeline/render/whatsapp.ts';
+import { ciudades } from '../ciudades/index.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 
@@ -113,17 +114,20 @@ describe('cleanUrl', () => {
   });
 });
 
-describe('la edición de ejemplo', () => {
-  it('cabe en un mensaje de WhatsApp y no arrastra Markdown sin traducir', async () => {
-    const raw = await readFile(path.join(root, 'content/ediciones/2026-09-18.md'), 'utf8');
-    const out = renderWhatsapp(matter(raw).content, {
-      editionUrl: 'https://ejemplo.es/ediciones/2026-09-18/',
-    });
+describe('las ediciones de ejemplo', () => {
+  it.each(ciudades.map((ciudad) => ciudad.id))(
+    '%s cabe en un mensaje de WhatsApp y no arrastra Markdown sin traducir',
+    async (id) => {
+      const file = path.join(root, `content/${id}/ediciones/2026-09-18.md`);
+      const raw = await readFile(file, 'utf8');
+      const url = `https://ejemplo.es/ediciones/2026-09-18/`;
+      const out = renderWhatsapp(matter(raw).content, { editionUrl: url });
 
-    expect(out.length).toBeLessThanOrEqual(3000);
-    expect(out).not.toContain('**');
-    expect(out).not.toContain('](');
-    expect(out).toContain('*☀️ El tiempo*');
-    expect(out.trimEnd().endsWith('👉 https://ejemplo.es/ediciones/2026-09-18/')).toBe(true);
-  });
+      expect(out.length).toBeLessThanOrEqual(3000);
+      expect(out).not.toContain('**');
+      expect(out).not.toContain('](');
+      expect(out).toContain('*☀️ El tiempo*');
+      expect(out.trimEnd().endsWith(`👉 ${url}`)).toBe(true);
+    },
+  );
 });
