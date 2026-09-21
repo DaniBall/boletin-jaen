@@ -137,7 +137,7 @@ type Borrador = {
 
 ## 7. Web
 
-- Una web por ciudad, cada una con su dominio y su identidad (ver ficha), servida desde su propio proyecto de Cloudflare. El código es el mismo; solo cambian la config, los tokens de diseño y los recursos de `ciudades/<id>/public/`.
+- Una web por ciudad, cada una con su dominio y su identidad (ver ficha), servida desde su propio Worker de Cloudflare (solo assets estáticos, sin código que ejecutar). El código es el mismo; solo cambian la config, los tokens de diseño y los recursos de `ciudades/<id>/public/`.
 - Páginas: inicio (edición de hoy y botón para seguir el Canal), `/ediciones/AAAA-MM-DD`, archivo, RSS de ediciones, aviso legal, privacidad y cookies.
 - En cada edición: «Copiar para WhatsApp» (al portapapeles), «Compartir por WhatsApp» (`https://wa.me/?text=…`), créditos de las fuentes e imagen OG.
 - Sin cookies. Analítica sin cookies (Cloudflare Web Analytics o GoatCounter).
@@ -163,7 +163,29 @@ type Borrador = {
 - [x] Una edición de ejemplo escrita a mano por ciudad y su página en la web, con build por ciudad (`CIUDAD`).
 - [x] Render de Markdown a WhatsApp, con tests.
 - [x] Workflow `ci.yml`: typecheck, lint, test y build de cada ciudad.
-- [ ] (Editor, guiado por Claude Code) Cuenta gratuita de Cloudflare y un proyecto por ciudad conectado al repo, con su comando de build y un dominio provisional.
+- [ ] (Editor, guiado por Claude Code) Cuenta gratuita de Cloudflare y un Worker por ciudad conectado al repo, con su comando de build y un dominio provisional. Los pasos están abajo.
+
+#### Alta en Cloudflare, paso a paso
+
+Se eligió **Workers con assets estáticos**, no Pages: es lo que recomiendan tanto la documentación de Cloudflare como la de Astro para proyectos nuevos. Las peticiones a assets estáticos son gratis e ilimitadas y no gastan la cuota diaria del plan gratuito.
+
+Lo que ya está en el repo: `ciudades/<id>/wrangler.jsonc` con el Worker de cada ciudad, `wrangler` como dependencia de desarrollo, la página `src/pages/404.astro` y el comando `CIUDAD=jaen npm run deploy`.
+
+Lo que hace el editor, una vez:
+
+1. Crear una cuenta gratuita en `dash.cloudflare.com` con el correo del proyecto. No hace falta tarjeta.
+2. En el panel, Workers → crear un Worker importando un repositorio, y autorizar la app de Cloudflare en GitHub solo para este repo.
+3. Repetir el paso 2 una vez por ciudad, con estos ajustes (el directorio raíz es la raíz del repo y la rama, `main`):
+
+| Worker | Comando de build | Comando de deploy |
+|---|---|---|
+| `boletin-jaen` | `CIUDAD=jaen npm run build` | `npx wrangler deploy --config ciudades/jaen/wrangler.jsonc` |
+| `boletin-leon` | `CIUDAD=leon npm run build` | `npx wrangler deploy --config ciudades/leon/wrangler.jsonc` |
+| `boletin-vitoria` | `CIUDAD=vitoria npm run build` | `npx wrangler deploy --config ciudades/vitoria/wrangler.jsonc` |
+
+4. En cada Worker, Settings → Build → Build watch paths, incluir solo lo suyo y lo común, para que una edición de León no reconstruya las tres webs: `ciudades/<id>/*`, `content/<id>/*`, `src/*`, `pipeline/*`, `astro.config.ts`, `package.json` y `package-lock.json`.
+5. Anotar la URL provisional de cada Worker (`https://boletin-<ciudad>.<subdominio>.workers.dev`) y ponerla en `brand.domain` de su `ciudades/<id>/config.ts`, que hoy es `https://example.invalid`.
+6. Cuando haya dominios propios: Worker → Settings → Domains & Routes → añadir dominio personalizado, y actualizar `brand.domain`.
 
 ### Fase 1: MVP de Jaén (salir en su Canal)
 

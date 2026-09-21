@@ -64,3 +64,10 @@ jobs:
         run: npm run build
         env:
           CIUDAD: ${{ matrix.ciudad }}
+
+      # No despliega: solo comprueba que el Worker de la ciudad es válido y
+      # que encuentra los assets del build.
+      - name: Comprobar el Worker
+        run: npm run deploy -- --dry-run
+        env:
+          CIUDAD: ${{ matrix.ciudad }}
