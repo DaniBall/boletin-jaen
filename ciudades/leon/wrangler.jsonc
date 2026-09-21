@@ -1,0 +1,15 @@
+{
+  // Web de León. Solo assets estáticos: no hay Worker que ejecutar.
+  // Se construye con `CIUDAD=leon npm run build` y se despliega con
+  // `npx wrangler deploy --config ciudades/leon/wrangler.jsonc`.
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "boletin-leon",
+  "compatibility_date": "2026-09-21",
+  "assets": {
+    "directory": "../../dist",
+    // Nuestras URLs acaban en barra y el build es por directorios.
+    "html_handling": "auto-trailing-slash",
+    // Sirve el 404.html que genera Astro.
+    "not_found_handling": "404-page",
+  },
+}

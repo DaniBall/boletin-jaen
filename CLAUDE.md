@@ -17,12 +17,12 @@ Se inspira en el modelo Pamplonews/Logronews, pero no copia su nombre ni el patr
 - **Sin servidor en fase 1.** GitHub Actions genera un borrador por ciudad y abre un Pull Request por cada una. El editor los revisa desde el móvil, el merge equivale a aprobar y la web de esa ciudad se publica sola.
 - **Nada se publica sin revisión humana.**
 - **Una edición es un Markdown** en `content/<id>/ediciones/AAAA-MM-DD.md`. Es la fuente de verdad, se puede editar a mano y se renderiza a HTML (web) y a texto de WhatsApp.
-- **Webs en Cloudflare:** un proyecto por ciudad conectado a este repo, cada uno con su dominio. GitHub Pages no sirve porque solo admite una web por repo.
+- **Webs en Cloudflare Workers:** un Worker por ciudad, de solo assets estáticos, conectado a este repo por Workers Builds y con su dominio. GitHub Pages no sirve porque solo admite una web por repo, y Workers es lo que Cloudflare y Astro recomiendan para proyectos nuevos, por encima de Pages.
 
 ## Stack
 
 - TypeScript estricto, Node 22 (fijado en `.nvmrc`) y npm, con un solo `package.json`.
-- Web: Astro estático. Se construye una vez por ciudad (`CIUDAD=jaen npm run build`) y cada build se despliega en su proyecto de Cloudflare (Pages o Workers con assets estáticos, lo que recomiende su documentación actual). Sin cookies y con analítica sin cookies.
+- Web: Astro estático. Se construye una vez por ciudad (`CIUDAD=jaen npm run build`) y cada build se despliega en su Worker, configurado en `ciudades/<id>/wrangler.jsonc`. Sin cookies y con analítica sin cookies.
 - Pipeline: scripts TS ejecutados por GitHub Actions, con una matriz por ciudad.
 - IA: SDK oficial `@anthropic-ai/sdk` con el modelo `claude-sonnet-5` (configurable con `CLAUDE_MODEL`) y salida con structured outputs (`output_config.format` + JSON Schema).
 - Zod para esquemas, Vitest para tests, cheerio para HTML, fast-xml-parser para RSS/XML y remark (AST) para transformar Markdown.
@@ -38,6 +38,7 @@ Se inspira en el modelo Pamplonews/Logronews, pero no copia su nombre ni el patr
 │   ├── index.ts           # registro: la única puerta de entrada a las ciudades
 │   ├── jaen/
 │   │   ├── config.ts      # marca, dominio, URL del canal, alcance, códigos, secciones, festivos
+│   │   ├── wrangler.jsonc # su Worker: nombre, assets y dominio
 │   │   ├── collectors/    # fuentes propias (Ayuntamiento, agenda local, aceite…)
 │   │   ├── prompts/       # toque local de la guía de estilo
 │   │   └── public/        # logo, favicon e imágenes de la ciudad
@@ -107,6 +108,7 @@ interface Item {
 ```
 CIUDAD=jaen npm run dev                                       # web de una ciudad en local
 CIUDAD=jaen npm run build                                     # build de una ciudad
+CIUDAD=jaen npm run deploy                                    # despliega ese build en su Worker
 npm run typecheck && npm test && npm run lint
 npm run edicion -- --ciudad jaen --fecha 2026-09-21           # pipeline completo → content/jaen/ediciones/2026-09-21.md
 npm run edicion -- --ciudad leon --fecha 2026-09-21 --sin-ia  # sin llamar a Claude, para desarrollar gratis
@@ -180,11 +182,12 @@ Ejemplos:
 - AEMET OpenData responde en dos pasos (primero devuelve una URL en `datos`) y los datos pueden venir en ISO-8859-15: decodifica bien los acentos. En la sección del tiempo, cita «Fuente: AEMET».
 - WhatsApp usa `*negrita*`, `_cursiva_` y `~tachado~`: ojo con `*` y `_` dentro de URLs y nombres propios.
 - La fecha de la edición se calcula en `Europe/Madrid`, con el cambio de hora incluido.
+- Las URLs de la web acaban en barra y el build es por directorios, así que los Workers usan `html_handling: auto-trailing-slash` y `not_found_handling: 404-page`, que necesita que exista `src/pages/404.astro`.
 - En Euskadi el tráfico interurbano lo gestiona el Gobierno Vasco, no la DGT: Vitoria-Gasteiz usa su propio colector de movilidad (Open Data Euskadi) en lugar del genérico.
 
 ## Secretos
 
-- Fase 1 (GitHub Secrets): `ANTHROPIC_API_KEY` y `AEMET_API_KEY`, compartidos por todas las ciudades. Cloudflare se conecta al repo desde su panel y no necesita secrets en GitHub.
+- Fase 1 (GitHub Secrets): `ANTHROPIC_API_KEY` y `AEMET_API_KEY`, compartidos por todas las ciudades. Cloudflare se conecta al repo desde su panel con Workers Builds y no necesita secrets en GitHub.
 - Fase 2: `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` y un `WHATSAPP_PHONE_NUMBER_ID_<CIUDAD>` por ciudad.
 
 ## Pendiente de decidir (pregunta antes de asumir)

@@ -11,6 +11,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "build:todas": "for c in jaen leon vitoria; do CIUDAD=$c astro build || exit 1; done",
+    "deploy": "wrangler deploy --config ciudades/$CIUDAD/wrangler.jsonc",
     "typecheck": "CIUDAD=jaen astro check && tsc --noEmit -p tsconfig.pipeline.json",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -44,6 +45,7 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.1",
+    "wrangler": "^4.135.0"
   }
 }

@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { ciudadActual } from '../../ciudades/index.ts';
+
+const ciudad = ciudadActual();
+---
+
+<Base title={`Esta página no existe · ${ciudad.brand.name}`}>
+  <h1>Aquí no hay nada</h1>
+  <p class="meta">
+    La dirección que has abierto no existe o la edición que buscas todavía no está publicada.
+  </p>
+  <p>
+    <a href="/">Ir a la última edición</a> o <a href="/ediciones/">ver todas las ediciones</a>.
+  </p>
+</Base>
