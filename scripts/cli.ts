@@ -31,6 +31,7 @@ const AYUDA = `Uso: npm run <comando> -- --ciudad <id> [--fecha AAAA-MM-DD]
   whatsapp   Imprime el texto listo para pegar en el Canal.
   edicion    Genera la edición (fase 1).
   fuentes    Tabla de salud de las fuentes (fase 1).
+  ciudades   Lista las ciudades. Con --json, la matriz que consume el CI.
 
 Ciudades: ${idsCiudades.join(', ')}
 `;
@@ -40,6 +41,14 @@ async function main(): Promise<number> {
 
   if (command === 'ayuda') {
     process.stdout.write(AYUDA);
+    return 0;
+  }
+
+  // El registro es la única lista de ciudades: de aquí la saca también la
+  // matriz de `ci.yml`, para no repetirla a mano en el workflow.
+  if (command === 'ciudades') {
+    const salida = flags.has('json') ? JSON.stringify(idsCiudades) : idsCiudades.join('\n');
+    process.stdout.write(`${salida}\n`);
     return 0;
   }
 

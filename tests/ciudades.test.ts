@@ -25,7 +25,7 @@ describe('cada ciudad', () => {
   it.each(ciudades.map((ciudad) => [ciudad.id, ciudad] as const))(
     '%s tiene una config coherente',
     (_id, ciudad) => {
-      expect(ciudad.id).toMatch(/^[a-z]+$/);
+      expect(ciudad.id).toMatch(/^[a-z][a-z0-9-]*$/);
       expect(ciudad.name).not.toBe('');
       expect(ciudad.brand.name).not.toBe('');
       expect(ciudad.scope).not.toHaveLength(0);

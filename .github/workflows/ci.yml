@@ -16,6 +16,9 @@ jobs:
   comprobar:
     name: Typecheck, lint y tests
     runs-on: ubuntu-latest
+    outputs:
+      # La lista de ciudades sale del registro, no de este archivo.
+      ciudades: ${{ steps.ciudades.outputs.lista }}
     steps:
       - uses: actions/checkout@v5
 
@@ -35,14 +38,18 @@ jobs:
       - name: Tests
         run: npm test
 
+      - name: Listar las ciudades del registro
+        id: ciudades
+        run: echo "lista=$(npx tsx scripts/cli.ts ciudades --json)" >> "$GITHUB_OUTPUT"
+
   construir:
     name: Build de ${{ matrix.ciudad }}
+    needs: comprobar
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # Al añadir una ciudad, añádela aquí.
-        ciudad: [jaen, leon, vitoria]
+        ciudad: ${{ fromJSON(needs.comprobar.outputs.ciudades) }}
     steps:
       - uses: actions/checkout@v5
 

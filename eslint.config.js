@@ -47,6 +47,16 @@ export default defineConfig(
           ],
         },
       ],
+      // `no-restricted-imports` solo mira los imports estáticos: un `import()`
+      // dinámico se colaría sin una queja.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportExpression[source.value=/(^|\\/)ciudades(\\/|$)/]',
+          message:
+            'El motor no puede importar de ciudades/ (regla 8 de CLAUDE.md), tampoco con import() dinámico.',
+        },
+      ],
     },
   },
 
