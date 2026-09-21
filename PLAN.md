@@ -156,7 +156,8 @@ type Borrador = {
 ### Fase 0: cimientos multiciudad
 
 - [x] (Editor) Crear el repo con un nombre neutro, por ejemplo `boletines-locales`, y permitir que Actions cree Pull Requests (Settings → Actions → General → Workflow permissions).
-- [ ] (Editor) Pedir la clave gratuita de AEMET OpenData y guardar `ANTHROPIC_API_KEY` y `AEMET_API_KEY` como secrets.
+- [x] (Editor) Pedir la clave gratuita de AEMET OpenData y guardarla como secret `AEMET_API_KEY`.
+- [ ] (Editor) Guardar `ANTHROPIC_API_KEY` como secret.
 - [x] Astro con TypeScript estricto, ESLint y Prettier, Vitest, `.env.example` y `.gitignore` (incluida la caché del pipeline). Node 22 en `.nvmrc`.
 - [x] Hook SessionStart en `.claude/settings.json` que ejecute `npm ci` solo cuando `CLAUDE_CODE_REMOTE` sea `true`.
 - [x] Estructura multiciudad: `ciudades/index.ts`, `ciudades/jaen/`, `ciudades/leon/` y `ciudades/vitoria/` con su `config.ts` provisional, y la regla de lint que impide importar `ciudades/` desde `pipeline/`.
